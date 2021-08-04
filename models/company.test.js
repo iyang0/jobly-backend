@@ -87,6 +87,69 @@ describe("findAll", function () {
   });
 });
 
+/************************************** queryByNameMinMax */
+
+describe("queryByNameMinMax", function () {
+  test("filter by name", async function () {
+    let companies = await Company.queryByNameMinMax("c1",undefined,undefined);
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      }
+    ]);
+  });
+  
+  test("filter by min employees", async function () {
+    let companies = await Company.queryByNameMinMax(undefined,2,undefined);
+    expect(companies).toEqual([
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      },
+      {
+        handle: "c3",
+        name: "C3",
+        description: "Desc3",
+        numEmployees: 3,
+        logoUrl: "http://c3.img",
+      },
+    ]);
+  });
+  
+  test("filter by max employees", async function () {
+    let companies = await Company.queryByNameMinMax(undefined,undefined,2);
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      },
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      },
+    ]);
+  });
+  
+  test("Cannot SQL inject", async function () {
+    let companies = await Company.queryByNameMinMax(";SELECT * FROM companies;",undefined,undefined);
+    expect(companies).toEqual([]);
+  });
+  
+});
+
 /************************************** get */
 
 describe("get", function () {
