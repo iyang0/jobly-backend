@@ -87,11 +87,11 @@ describe("findAll", function () {
   });
 });
 
-/************************************** queryByNameMinMax */
+/************************************** findAll with filters */
 
-describe("queryByNameMinMax", function () {
+describe("findAll with filters", function () {
   test("filter by name", async function () {
-    let companies = await Company.queryByNameMinMax("c1",undefined,undefined);
+    let companies = await Company.findAll({name : "c1"});
     expect(companies).toEqual([
       {
         handle: "c1",
@@ -104,7 +104,7 @@ describe("queryByNameMinMax", function () {
   });
   
   test("filter by min employees", async function () {
-    let companies = await Company.queryByNameMinMax(undefined,2,undefined);
+    let companies = await Company.findAll({minEmp : 2});
     expect(companies).toEqual([
       {
         handle: "c2",
@@ -124,7 +124,7 @@ describe("queryByNameMinMax", function () {
   });
   
   test("filter by max employees", async function () {
-    let companies = await Company.queryByNameMinMax(undefined,undefined,2);
+    let companies = await Company.findAll({maxEmp : 2});
     expect(companies).toEqual([
       {
         handle: "c1",
@@ -144,7 +144,7 @@ describe("queryByNameMinMax", function () {
   });
   
   test("Cannot SQL inject", async function () {
-    let companies = await Company.queryByNameMinMax(";SELECT * FROM companies;",undefined,undefined);
+    let companies = await Company.findAll({name: ";SELECT * FROM companies;"});
     expect(companies).toEqual([]);
   });
   

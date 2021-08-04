@@ -111,18 +111,12 @@ class Company {
       whereClause.push(`num_employees <= $${whereValues.length}`);
     }
     
-    if(!whereClause){
-      return { 
-        whereClause : "",
-        whereValues,
-      };
-    }else{
-      whereClause = "WHERE "+ whereClause.join(" AND ")
-      return {
-          whereClause,
-          whereValues
-      };
-    }
+    
+    whereClause = "WHERE "+ whereClause.join(" AND ")
+    return {
+        whereClause,
+        whereValues
+    };
 
   }
 
