@@ -49,12 +49,25 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
+  /** Find all companies that match by the filter condition, 
+   * if no filter condition gets all compnaies.
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
+  static async findAll(filterBy) {
+    
+    let whereClause = "";
+    let whereValues = [];
+    if(filterBy instanceof Object && Object.keys(filterBy).length > 0){
+      let { minEmp, maxEmp, name } = filterBy;
+      
+      let whereStatement = Company._sqlWhereBuilder(name, minEmp, maxEmp);
+      
+      whereClause = whereStatement.whereClause;
+      whereValues = whereStatement.whereValues;
+    }
+    
     const companiesRes = await db.query(
         `SELECT handle,
                 name,
@@ -62,15 +75,19 @@ class Company {
                 num_employees AS "numEmployees",
                 logo_url AS "logoUrl"
            FROM companies
-           ORDER BY name`);
+           ${whereClause}
+           ORDER BY name`,
+           whereValues);
+           
     return companiesRes.rows;
+    
   }
   
   /* 
-    Find all companies that match a filter of the name, the minimum employees, and/or maximum employees
-    Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+    helper function for earching for companies that builds a where clause
+    based on what to filter by.
   */
-  static async queryByNameMinMax(name, min, max){
+  static _sqlWhereBuilder(name, min, max){
     
     let whereClause = [];
     let whereValues = [];
@@ -84,34 +101,29 @@ class Company {
       // whereClause.push(`name ILIKE '%$${whereValues.length}%'`);
     }
     
-    // if(min !== undefined) whereClause.push(`num_employees >= ${min}`);
     if (min !== undefined) {
       whereValues.push(min);
       whereClause.push(`num_employees >= $${whereValues.length}`);
     }
     
-    // if(name !== undefined) whereClause.push(`num_employees <= ${max}`);
     if (max !== undefined) {
       whereValues.push(max);
       whereClause.push(`num_employees <= $${whereValues.length}`);
     }
     
-    whereClause = "WHERE "+ whereClause.join(" AND ");
-    // console.log(whereClause);
-    
-    const companiesResp = await db.query(
-      `SELECT handle,
-              name,
-              description,
-              num_employees AS "numEmployees",
-              logo_url AS "logoUrl"
-      FROM companies
-      ${whereClause}
-      ORDER BY name`,
-      whereValues
-    )
-    
-    return companiesResp.rows;
+    if(!whereClause){
+      return { 
+        whereClause : "",
+        whereValues,
+      };
+    }else{
+      whereClause = "WHERE "+ whereClause.join(" AND ")
+      return {
+          whereClause,
+          whereValues
+      };
+    }
+
   }
 
   /** Given a company handle, return data about company.

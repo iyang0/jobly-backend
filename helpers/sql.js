@@ -2,10 +2,25 @@ const { BadRequestError } = require("../expressError");
 
 
 /* 
-  takes in an object representing data in the database(dataToUpdate) 
-  and an object representing which columns of data they represent(jsToSql)
+  Helper function for making update queries.
+  Takes in an object representing data in the database(dataToUpdate)
+    {key1: newValue, key2: newValue2}
+  and an object that maps the keys in the dataToUpdate to database columns(jsToSql)
+    {key1: "db_column_name1", key2: "db_column_name2"}
+    
+  returns an object with "setCols" being a string to be used in an SQL UPDATE query for which columns to set based on the values;
+  "values" is an array of the new values to be updated
   
-  returns an object with "setCols" being a string to be used in an SQL UPDATE query for which columns to set; "values" is an array of the values to be updated in the where clause
+  call: sqlForPartialUpdate(
+          {key1: newValue, key2: newValue2},
+          {key1: "db_column_name1", key2: "db_column_name2"}
+        )
+          
+  return: {
+            setCols: `"db_column_name1"=$1, "db_column_name2"=$2`
+            values: [newValue, newValue2]
+          }
+  
  */
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   const keys = Object.keys(dataToUpdate);
@@ -15,8 +30,7 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   const cols = keys.map((colName, idx) =>
       `"${jsToSql[colName] || colName}"=$${idx + 1}`,
   );
-// console.log(cols);
-// console.log(Object.values(dataToUpdate));
+
   return {
     setCols: cols.join(", "),
     values: Object.values(dataToUpdate),
