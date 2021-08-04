@@ -95,6 +95,74 @@ describe("GET /companies", function () {
           ],
     });
   });
+  
+  test("query for name", async function () {
+    const resp = await request(app).get("/companies?nameLike=C1");
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          },
+        ],
+    });
+  });
+  
+  test("query for min", async function () {
+    const resp = await request(app).get("/companies?minEmployees=2");
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          },
+          {
+            handle: "c3",
+            name: "C3",
+            description: "Desc3",
+            numEmployees: 3,
+            logoUrl: "http://c3.img",
+          },
+        ],
+    });
+  });
+    
+  test("query for max", async function () {
+    const resp = await request(app).get("/companies?maxEmployees=2");
+    expect(resp.body).toEqual({
+      companies:
+        [
+          {
+            handle: "c1",
+            name: "C1",
+            description: "Desc1",
+            numEmployees: 1,
+            logoUrl: "http://c1.img",
+          },
+          {
+            handle: "c2",
+            name: "C2",
+            description: "Desc2",
+            numEmployees: 2,
+            logoUrl: "http://c2.img",
+          },
+        ],
+    });
+  });
+  
+  test("validate min can't be more than max", async function () {
+    const resp = await request(app).get("/companies?maxEmployees=1&minEmployees=2");
+    expect(resp.status).toEqual(400);
+    expect(resp.badRequest).toEqual(true);
+  });
 
   test("fails: test next() handler", async function () {
     // there's no normal failure event which will cause this route to fail ---
@@ -102,11 +170,12 @@ describe("GET /companies", function () {
     // should cause an error, all right :)
     await db.query("DROP TABLE companies CASCADE");
     const resp = await request(app)
-        .get("/companies")
-        .set("authorization", `Bearer ${u1Token}`);
+      .get("/companies")
+      .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(500);
   });
 });
+
 
 /************************************** GET /companies/:handle */
 

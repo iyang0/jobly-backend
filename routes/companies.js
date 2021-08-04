@@ -43,6 +43,8 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * - maxEmployees
  * - nameLike (will find case-insensitive, partial matches)
  *
+ * If min is greater than max in query, throw bad request
+ *
  * Authorization required: none
  */
 
