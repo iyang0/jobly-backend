@@ -65,6 +65,54 @@ class Company {
            ORDER BY name`);
     return companiesRes.rows;
   }
+  
+  /* 
+    Find all companies that match a filter of the name, the minimum employees, and/or maximum employees
+    Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
+  */
+  static async queryByNameMinMax(name, min, max){
+    
+    let whereClause = [];
+    let whereValues = [];
+    
+    // need to do the values separately otherwise no SQL injection protection
+    // if(name !== undefined) whereClause.push(`name ILIKE '%${name}%'`);
+    if(name !== undefined) {
+      whereValues.push(`%${name}%`);
+      whereClause.push(`name ILIKE $${whereValues.length}`);
+      // whereValues.push(name)
+      // whereClause.push(`name ILIKE '%$${whereValues.length}%'`);
+    }
+    
+    // if(min !== undefined) whereClause.push(`num_employees >= ${min}`);
+    if (min !== undefined) {
+      whereValues.push(min);
+      whereClause.push(`num_employees >= $${whereValues.length}`);
+    }
+    
+    // if(name !== undefined) whereClause.push(`num_employees <= ${max}`);
+    if (max !== undefined) {
+      whereValues.push(max);
+      whereClause.push(`num_employees <= $${whereValues.length}`);
+    }
+    
+    whereClause = "WHERE "+ whereClause.join(" AND ");
+    // console.log(whereClause);
+    
+    const companiesResp = await db.query(
+      `SELECT handle,
+              name,
+              description,
+              num_employees AS "numEmployees",
+              logo_url AS "logoUrl"
+      FROM companies
+      ${whereClause}
+      ORDER BY name`,
+      whereValues
+    )
+    
+    return companiesResp.rows;
+  }
 
   /** Given a company handle, return data about company.
    *

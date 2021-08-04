@@ -47,7 +47,24 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  const companies = await Company.findAll();
+  
+  const {
+    minEmp = req.query.minEmployees,
+    maxEmp = req.query.maxEmployees,
+    name = req.query.nameLike 
+    } =Object.keys(req.query);
+  let companies;
+
+  if (minEmp > maxEmp){
+    throw new BadRequestError("Minimum number of employees cannot be greater than maximum.");
+  }
+  
+  if(!minEmp && !maxEmp && !name){
+    companies = await Company.findAll();
+  }else{
+    companies = await Company.queryByNameMinMax(name, minEmp, maxEmp);
+  }
+  
   return res.json({ companies });
 });
 
