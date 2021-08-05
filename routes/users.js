@@ -55,7 +55,7 @@ router.post("/",
  * Authorization required: login
  **/
 
-router.get("/", ensureLoggedIn, async function (req, res, next) {
+router.get("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
   const users = await User.findAll();
   return res.json({ users });
 });
@@ -68,7 +68,11 @@ router.get("/", ensureLoggedIn, async function (req, res, next) {
  * Authorization required: login, isAdminOrCurrUser
  **/
 
-router.get("/:username", ensureLoggedIn, async function (req, res, next) {
+router.get("/:username", 
+            ensureLoggedIn, 
+            ensureAdminOrCurrUser, 
+            async function (req, res, next) {
+  
   const user = await User.get(req.params.username);
   return res.json({ user });
 });
