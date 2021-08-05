@@ -433,4 +433,12 @@ describe("DELETE /users/:username", function () {
     });
   });
   
+  test("works for non-admin current user", async function () {
+    const resp = await request(app)
+        .delete(`/users/u2`)
+        .set("authorization", `Bearer ${nonAdminToken}`);
+    expect(resp.statusCode).toEqual(200);
+    expect(resp.body).toEqual({ deleted: "u2" });
+  });
+  
 });
