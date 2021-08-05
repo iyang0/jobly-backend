@@ -76,6 +76,30 @@ describe("POST /companies", function () {
       }
     });
   });
+  
+  test("validates JSON correctly", async function () {
+    
+    const badCompany = {
+    handle: 123,
+    name: 456,
+    logoUrl: "",
+    description: "DescNew",
+    numEmployees: "10",
+    };
+      
+    const resp = await request(app)
+        .post("/companies")
+        .send(badCompany)
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body).toEqual({
+      "error": {
+        "message": expect.any(Array),
+        "status": 400
+      }
+    });
+  });
+  
 });
 
 /************************************** GET /companies */
