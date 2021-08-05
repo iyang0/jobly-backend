@@ -5,7 +5,8 @@ const { UnauthorizedError, ForbiddenError } = require("../expressError");
 const {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureAdminOrCurrUser
 } = require("./auth");
 
 
@@ -13,7 +14,7 @@ const { SECRET_KEY } = require("../config");
 const testJwt = jwt.sign({ username: "test", isAdmin: false }, SECRET_KEY);
 const badJwt = jwt.sign({ username: "test", isAdmin: false }, "wrong");
 
-
+/************************************** authenticateJWT */
 
 describe("authenticateJWT", function () {
   test("works: via header", function () {
@@ -57,6 +58,8 @@ describe("authenticateJWT", function () {
 });
 
 
+/************************************** ensureLoggedIn */
+
 describe("ensureLoggedIn", function () {
   test("works", function () {
     expect.assertions(1);
@@ -78,6 +81,8 @@ describe("ensureLoggedIn", function () {
     ensureLoggedIn(req, res, next);
   });
 });
+
+/************************************** ensureAdmin */
 
 describe("ensureAdmin", function () {
   test("works", function () {
@@ -103,5 +108,49 @@ describe("ensureAdmin", function () {
       expect(err instanceof ForbiddenError).toBeTruthy();
     };
     ensureAdmin(req, res, next);
+  });
+});
+
+/************************************** ensureAdminOrCurrUser */
+
+describe("ensureAdmin", function () {
+  test("works if admin", function () {
+    expect.assertions(1);
+    const req = { params: { username: "test"} };
+    const res = { locals: { user: { username: "test", isAdmin: true } } };
+    const next = function (err) {
+      expect(err).toBeFalsy();
+    };
+    ensureAdminOrCurrUser(req, res, next);
+  });
+
+  test("Forbidden if not admin", function () {
+    expect.assertions(1);
+    const req = { params: { username: "test2"} };
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    const next = function (err) {
+      expect(err instanceof ForbiddenError).toBeTruthy();
+    };
+    ensureAdminOrCurrUser(req, res, next);
+  });
+  
+  test("works if current user", function () {
+    expect.assertions(1);
+    const req = { params: { username: "test3"} };
+    const res = { locals: { user: { username: "test3", isAdmin: false } } };
+    const next = function (err) {
+      expect(err).toBeFalsy();
+    };
+    ensureAdminOrCurrUser(req, res, next);
+  });
+
+  test("Forbidden if not current user", function () {
+    expect.assertions(1);
+    const req = {params: { username: "test4"}};
+    const res = { locals: { user: { username: "test", isAdmin: false } } };
+    const next = function (err) {
+      expect(err instanceof ForbiddenError).toBeTruthy();
+    };
+    ensureAdminOrCurrUser(req, res, next);
   });
 });

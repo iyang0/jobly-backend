@@ -44,10 +44,31 @@ function ensureLoggedIn(req, res, next) {
 
 /* 
   Middleware to endure that a user is an admin for admin protected routes
+  raises forbidden error otherwise
  */
- function ensureAdmin(req, res, next) {
+function ensureAdmin(req, res, next) {
   try {
-    if (!res.locals.user.isAdmin) {
+    const currUser = res.locals.user;
+    if (!currUser.isAdmin) {
+      throw new ForbiddenError();
+    }
+    return next();
+  } catch (err) {
+    return next(err);
+  }
+}
+
+/* 
+  Middleware to endure that a user is an admin or
+  the current user is the same user as one specified in param
+  raises forbidden error otherwise
+ */
+function ensureAdminOrCurrUser(req, res, next) {
+  try {
+      
+    const currUser = res.locals.user;
+    const paramUsername = req.params.username;
+    if (!(currUser.isAdmin || currUser.username === paramUsername)) {
       throw new ForbiddenError();
     }
     return next();
@@ -60,5 +81,6 @@ function ensureLoggedIn(req, res, next) {
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureAdminOrCurrUser
 };
