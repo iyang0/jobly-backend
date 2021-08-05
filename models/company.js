@@ -3,6 +3,7 @@
 const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
 const { sqlForPartialUpdate } = require("../helpers/sql");
+const Job = require("./job")
 
 /** Related functions for companies. */
 
@@ -170,8 +171,12 @@ class Company {
     const querySql = `
       UPDATE companies
       SET ${setCols}
-        WHERE handle = ${handleVarIdx}
-        RETURNING handle, name, description, num_employees AS "numEmployees", logo_url AS "logoUrl"`;
+      WHERE handle = ${handleVarIdx}
+      RETURNING handle, 
+        name,
+        description,
+        num_employees AS "numEmployees",
+        logo_url AS "logoUrl"`;
     const result = await db.query(querySql, [...values, handle]);
     const company = result.rows[0];
 
