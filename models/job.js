@@ -70,7 +70,6 @@ class Job {
     let whereValues = [];
     if(filterBy instanceof Object && Object.keys(filterBy).length > 0){
       let { minSalary, hasEquity, title, companyHandle } = filterBy;
-      
       let whereStatement = Job._sqlWhereBuilder(
           minSalary,
           hasEquity,
@@ -90,8 +89,6 @@ class Job {
                 FROM jobs
                 ${whereClause}
                 ORDER BY title`;
-
-    // console.log(query);
     
     const jobsResults = await db.query(query, whereValues);
     return jobsResults.rows;
@@ -104,7 +101,7 @@ class Job {
   static _sqlWhereBuilder(minSalary, hasEquity, title, companyHandle){
     // For each possible search term, add to whereClause and
     // whereValues so we can generate the right SQL
-
+    
     let whereClause = [];
     let whereValues = [];
 
@@ -115,7 +112,7 @@ class Job {
       whereClause.push(`salary >= $${whereValues.length}`);
     }
 
-    if (hasEquity === true) {
+    if (hasEquity === "true") {
       whereClause.push(`equity > 0`);
     }
 

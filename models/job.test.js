@@ -76,7 +76,7 @@ describe("findAll with filters", function () {
   });
   
   test("Cannot SQL inject", async function () {
-    let jobs = await Job.findAll({title: ";SELECT * FROM companies;"});
+    let jobs = await Job.findAll({title: "';SELECT * FROM jobs;"});
     expect(jobs).toEqual([]);
   });
   
@@ -188,6 +188,7 @@ describe("update", function () {
       await Job.update("two", updateData);
       fail();
     } catch (err) {
+      // console.log(err.constructor.name)
       expect(err instanceof DatabaseError).toBeTruthy();
     }
   });
@@ -197,7 +198,6 @@ describe("update", function () {
       await Job.update(testJobs[0].id, {});
       fail();
     } catch (err) {
-      // console.log(err.constructor.name)
       expect(err instanceof BadRequestError).toBeTruthy();
     }
   });

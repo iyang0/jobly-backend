@@ -59,7 +59,10 @@ router.get("/", async function (req, res, next) {
     } = req.query;
   let jobs;
   
-  if(!minSalary && !hasEquity && !title && !companyHandle){
+  if( minSalary === undefined 
+      && hasEquity === undefined
+      && title === undefined
+      && companyHandle === undefined){
     jobs = await Job.findAll();
   }else{
     jobs = await Job.findAll({minSalary, hasEquity, title, companyHandle});
