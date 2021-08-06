@@ -91,6 +91,8 @@ class Job {
                 ${whereClause}
                 ORDER BY title`;
 
+    // console.log(query);
+    
     const jobsResults = await db.query(query, whereValues);
     return jobsResults.rows;
   }
@@ -106,6 +108,8 @@ class Job {
     let whereClause = [];
     let whereValues = [];
 
+    // console.log(minSalary, hasEquity, title, companyHandle);
+    
     if (minSalary !== undefined) {
       whereValues.push(minSalary);
       whereClause.push(`salary >= $${whereValues.length}`);
@@ -126,7 +130,7 @@ class Job {
       whereClause.push(`company_handle ILIKE $${whereValues.length}`);
     }
     
-    whereClause = "WHERE "+ whereClause.join(" AND ")
+    whereClause = "WHERE "+ whereClause.join(" AND ");
     
     return {
         whereClause,

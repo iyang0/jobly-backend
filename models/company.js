@@ -139,8 +139,12 @@ class Company {
            FROM companies
            WHERE handle = $1`,
         [handle]);
-
+    
     const company = companyRes.rows[0];
+
+    const jobs = Job.findAll({ companyHandle : handle });
+    
+    company["jobs"] = jobs;
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 

@@ -54,8 +54,8 @@ router.get("/", async function (req, res, next) {
   const {
     minSalary,
     hasEquity,
-    title,
-    companyHandle,
+    title, 
+    companyHandle 
     } = req.query;
   let jobs;
   
