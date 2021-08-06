@@ -36,13 +36,13 @@ async function commonBeforeAll() {
     VALUES  ('Job1', 100, '0.5', 'c1'),
             ('Job2', 150, NULL, 'c2'),
             ('Job3', 200, '0.01', 'c1')
-    returning id, title, salary, equity, company_handle`);
+    returning id, title, salary, equity, company_handle AS "companyHandle"`);
   
   //it didn't capitalize correctly when I did company_handle AS companyHandle
   //so I'm changing the key name it before pushing
   resultsJobs.rows.forEach(ele => {
-    ele['companyHandle'] = ele['company_handle'];
-    delete ele['company_handle'];
+    // ele['companyHandle'] = ele['company_handle'];
+    // delete ele['company_handle'];
     testJobs.push(ele);
   });
 }

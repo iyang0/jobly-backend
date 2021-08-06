@@ -101,7 +101,7 @@ describe("get", function () {
   
   test("not found if no such Job", async function () {
     try {
-      await Job.get(-1);
+      await Job.get(0);
       fail();
     } catch (err) {
       expect(err instanceof NotFoundError).toBeTruthy();
@@ -194,10 +194,10 @@ describe("update", function () {
 
   test("bad request with no data", async function () {
     try {
-      await Company.update(testJobs[0].id, {});
+      await Job.update(testJobs[0].id, {});
       fail();
     } catch (err) {
-        // console.log(err.constructor.name)
+      // console.log(err.constructor.name)
       expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
@@ -205,20 +205,30 @@ describe("update", function () {
 
 /************************************** remove */
 
-// describe("remove", function () {
-  // test("works", async function () {
-    // await Company.remove("c1");
-    // const res = await db.query(
-        // "SELECT handle FROM companies WHERE handle='c1'");
-    // expect(res.rows.length).toEqual(0);
-  // });
+describe("remove", function () {
+  test("works", async function () {
+    await Job.remove(testJobs[0].id);
+    const res = await db.query(
+        `SELECT id FROM jobs WHERE id=${testJobs[0].id}`);
+    expect(res.rows.length).toEqual(0);
+  });
 
-  // test("not found if no such company", async function () {
-    // try {
-      // await Company.remove("nope");
-      // fail();
-    // } catch (err) {
-      // expect(err instanceof NotFoundError).toBeTruthy();
-    // }
-  // });
-// });
+  test("DatabaseError if access job Id with string", async function () {
+    try {
+      await Job.remove("nope");
+      fail();
+    } catch (err) {
+      expect(err instanceof DatabaseError).toBeTruthy();
+    }
+  });
+  
+  test("not found if job Id doesn't exist", async function () {
+    try {
+      await Job.remove(0);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+  
+});
