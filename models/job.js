@@ -137,7 +137,7 @@ class Job {
 
   /** Given a job id, return data about job.
    *
-   * Returns { id, title, salary, equity, companyHandle, company }
+   * Returns { id, title, salary, equity, companyHandle }
    *
    * Throws NotFoundError if not found.
    **/
