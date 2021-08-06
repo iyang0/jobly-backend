@@ -3,7 +3,6 @@
 const db = require("../db");
 const { NotFoundError} = require("../expressError");
 const { sqlForPartialUpdate } = require("../helpers/sql");
-const Company = require("./company")
 
 /* Our database uses the NUMERIC field type. Do some research on why we chose this, rather than a FLOAT type. Discover what the pg library returns when that field type is queried, and form a theory on why. Be prepared to discuss this during code reviews. 
 
@@ -60,7 +59,7 @@ class Job {
   - minSalary
   - hasEquity (boolean; true for jobs with equity > 0)
   - title (string; case-insensitive, partial matches)
-  - company (string; case-insensitive, partial matches) *not asked for, but I want it
+  - company (string; case-insensitive, partial matches)
   
   Returns an array of jobs:
   [{ id, title, salary, equity, companyHandle }, ...]
@@ -72,10 +71,11 @@ class Job {
     if(filterBy instanceof Object && Object.keys(filterBy).length > 0){
       let { minSalary, hasEquity, title, companyHandle } = filterBy;
       
-      let whereStatement = Company._sqlWhereBuilder(minSalary,
+      let whereStatement = Job._sqlWhereBuilder(
+          minSalary,
           hasEquity,
           title,
-          company);
+          companyHandle);
       
       whereClause = whereStatement.whereClause;
       whereValues = whereStatement.whereValues;
@@ -91,8 +91,8 @@ class Job {
                 ${whereClause}
                 ORDER BY title`;
 
-    const jobsRes = await db.query(query, whereValues);
-    return jobsRes.rows;
+    const jobsResults = await db.query(query, whereValues);
+    return jobsResults.rows;
   }
   
   /* 
@@ -120,9 +120,10 @@ class Job {
       whereClause.push(`title ILIKE $${whereValues.length}`);
     }
     
+    //not asked for, but I want this for the "Show Jobs for a Company" part
     if (companyHandle !== undefined) {
       whereValues.push(`%${companyHandle}%`);
-      whereClause.push(`title ILIKE $${whereValues.length}`);
+      whereClause.push(`company_handle ILIKE $${whereValues.length}`);
     }
     
     whereClause = "WHERE "+ whereClause.join(" AND ")

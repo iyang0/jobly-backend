@@ -2,7 +2,7 @@ const bcrypt = require("bcrypt");
 
 const db = require("../db.js");
 const { BCRYPT_WORK_FACTOR } = require("../config");
-let testJobs = []
+let testJobs = [];
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
@@ -34,11 +34,17 @@ async function commonBeforeAll() {
   const resultsJobs = await db.query(`
     INSERT INTO jobs (title, salary, equity, company_handle)
     VALUES  ('Job1', 100, '0.5', 'c1'),
-            ('Job2', 150, '0.2', 'c2'),
+            ('Job2', 150, NULL, 'c2'),
             ('Job3', 200, '0.01', 'c1')
-    returning id, title, salary, equity, company_handle AS companyHandle`);
-    
-  testJobs = resultsJobs.rows;
+    returning id, title, salary, equity, company_handle`);
+  
+  //it didn't capitalize correctly when I did company_handle AS companyHandle
+  //so I'm changing the key name it before pushing
+  resultsJobs.rows.forEach(ele => {
+    ele['companyHandle'] = ele['company_handle'];
+    delete ele['company_handle'];
+    testJobs.push(ele);
+  });
 }
 
 async function commonBeforeEach() {
